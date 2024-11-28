@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Math Quiz on Surface Area and Volume</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(to right, #001f3f, #003366);
+      color: #ffffff;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 20px;
+      background-color: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+      color: #333333;
+      transition: box-shadow 0.3s ease;
+    }
+    .container:hover {
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.8);
+    }
+    h1 {
+      color: #3399ff;
+    }
+    .question, .options {
+      opacity: 0;
+      transition: opacity 0.5s ease-in-out;
+    }
+    .question.fade-in, .options.fade-in {
+      opacity: 1;
+    }
+    .question {
+      font-size: 1.2em;
+      margin: 20px 0;
+    }
+    .options {
+      display: flex;
+      flex-direction: column;
+      margin: 15px 0;
+    }
+    .option {
+      background-color: #cce6ff;
+      padding: 10px;
+      margin: 5px;
+      border: 2px solid #3399ff;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .option:hover {
+      background-color: #1a75d1;
+      color: white;
+      transform: scale(1.05);
+    }
+    .button {
+      padding: 10px 20px;
+      background-color: #3399ff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: 0.3s;
+      font-size: 1em;
+      margin: 10px;
+    }
+    .button:hover {
+      background-color: #1a75d1;
+    }
+    .timer-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 20px;
+    }
+    .clock-icon {
+      font-size: 2em;
+      margin-right: 10px;
+      color: #ff6666;
+    }
+    .timer {
+      font-size: 1.5em;
+      color: #e60000;
+      font-weight: bold;
+      animation: beep 1s infinite alternate; /* Timer blinking effect */
+    }
+    @keyframes beep {
+      from { color: #e60000; }
+      to { color: #ff6666; }
+    }
+    .progress-bar-container {
+      width: 100%;
+      height: 10px;
+      background-color: #ddd;
+      border-radius: 5px;
+      overflow: hidden;
+      margin: 20px auto;
+    }
+    .progress-bar {
+      height: 100%;
+      width: 0%; /* Set to 0 initially */
+      background-color: #e60000;
+      transition: width 1s linear;
+    }
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      justify-content: center;
+      align-items: center;
+      color: white;
+      font-size: 1.5em;
+      z-index: 1000;
+      padding: 20px;
+    }
+    .modal-content {
+      background-color: #333;
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+      width: 60%;
+    }
+    .modal-content.correct {
+      background-color: #28a745;
+    }
+    .modal-content.incorrect {
+      background-color: #dc3545;
+    }
+    .modal-content .tick-cross {
+      font-size: 4em;
+      margin: 10px 0;
+    }
+    .modal-content .message {
+      font-size: 2em;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Math Quiz on Surface Area and Volume</h1>
+  <p>Select a question by number (1-12) and solve it within 2 minutes.</p>
+  
+  <div class="question fade-in" id="questionText">Please select a question...</div>
+  <div class="options fade-in" id="options"></div>
+  
+  <div class="timer-container">
+    <div class="clock-icon">⏰</div>
+    <div class="timer" id="timer">Time left: --</div>
+  </div>
+
+  <div class="progress-bar-container">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+
+  <button class="button" onclick="revealAnswer()">Reveal Answer</button>
+  <br><br>
+  <input type="number" id="questionNumber" placeholder="Enter question number (1-12)" min="1" max="12" style="padding: 8px; font-size: 1em;">
+  <button class="button" onclick="selectQuestion()">Start Question</button>
+
+  <div class="feedback" id="feedback"></div>
+</div>
+
+<!-- Modal for Answer Feedback -->
+<div class="modal" id="feedbackModal">
+  <div class="modal-content" id="modalContent">
+    <div class="tick-cross" id="tickCross"></div>
+    <div class="message" id="modalMessage"></div>
+  </div>
+</div>
+
+<script>
+  const questions = [
+    {
+      question: "What is the volume of a cone with a radius of 5 cm and a height of 12 cm?",
+      options: ["300 cm³", "400 cm³", "314.29 cm³", "500 cm³"],
+      answer: "314.29 cm³"
+    },
+    {
+      question: "A cone has a radius of 7 cm and a slant height of 10 cm. What is its Total surface area?",
+      options: ["170 cm²", "374 cm²", "140 cm²", "300 cm²"],
+      answer: "374 cm²"
+    },
+    {
+      question: "The height of a cone is 15 cm, and its base radius is 4 cm. What is the volume of the cone?",
+      options: ["252 cm³", "150.8 cm³", "80.5 cm³", "100.4 cm³"],
+      answer: "252 cm³"
+    },
+    {
+      question: "A cone has a radius of 3 cm and a slant height of 5 cm. What is its lateral surface area?",
+      options: ["37.7 cm²", "47.14 cm²", "43.2 cm²", "15.7 cm²"],
+      answer: "47.14 cm²"
+    },
+    {
+      question: "What is the volume of a sphere with a radius of 6 cm?",
+      options: ["452.4 cm³", "904.48 cm³", "113.1 cm³", "50.2 cm³"],
+      answer: "904.48 cm³"
+    },
+    {
+      question: "Find the surface area of a sphere with a radius of 8 cm.",
+      options: ["201.06 cm²", "804.56 cm²", "160.85 cm²", "100.53 cm²"],
+      answer: "804.56 cm²"
+    },
+    {
+      question: "The radius of a sphere is 5 cm. What is its volume?",
+      options: ["314.15 cm³", "523.81 cm³", "185.4 cm³", "785.4 cm³"],
+      answer: "523.81 cm³"
+    },
+    {
+      question: "If the radius of a sphere is doubled, how does the surface area change?",
+      options: ["It is doubled", "It remains the same", "It is tripled", "It is quadrupled"],
+      answer: "It is quadrupled"
+    },
+    {
+      question: "Find the surface area of a hemisphere with a radius of 7 cm.",
+      options: ["307.87 cm²", "177.9 cm²", "462 cm²", "225.9 cm²"],
+      answer: "462 cm²"
+    },
+    {
+      question: "What is the volume of a hemisphere with a radius of 6 cm?",
+      options: ["452.57 cm³", "75.44 cm³", "72.87 cm³", "50.37 cm³"],
+      answer: "452.57 cm³"
+    },
+    {
+      question: "A hemisphere has a radius of 10 cm. What is its total surface area?",
+      options: ["314.16 cm²", "157.08 cm²", "785.4 cm²", "942.86 cm²"],
+      answer: "942.86 cm²"
+    },
+    {
+      question: "If the radius of a hemisphere is increased, how does its volume change?",
+      options: ["It increases by the square of the radius", "It increases by the cube of the radius", "It increases linearly", "It remains the same"],
+      answer: "It increases by the cube of the radius"
+    }
+  ];
+
+  let currentQuestion = {};
+  let timer;
+  let timeLeft = 120; // 2 minutes
+  let progress = 0;
+
+  function startTimer() {
+    if (timer) clearInterval(timer);
+    timeLeft = 120; // Reset to 120 seconds (2 minutes)
+    progress = 0;
+    document.getElementById("timer").innerText = `Time left: ${timeLeft}s`;
+    document.getElementById("progressBar").style.width = "0%";
+    timer = setInterval(function() {
+      timeLeft--;
+      progress += 100 / 120;
+      document.getElementById("timer").innerText = `Time left: ${timeLeft}s`;
+      document.getElementById("progressBar").style.width = `${progress}%`;
+
+      if (timeLeft <= 0) {
+        clearInterval(timer);
+        alert("Time is up!");
+      }
+    }, 1000);
+  }
+
+  function selectQuestion() {
+    let questionNumber = document.getElementById('questionNumber').value;
+    if (questionNumber >= 1 && questionNumber <= 12) {
+      currentQuestion = questions[questionNumber - 1];
+      document.getElementById('questionText').innerText = currentQuestion.question;
+      document.getElementById('options').innerHTML = currentQuestion.options.map(option => 
+        `<div class="option" onclick="checkAnswer('${option}')">${option}</div>`).join('');
+      document.getElementById('questionText').classList.add('fade-in');
+      document.getElementById('options').classList.add('fade-in');
+      startTimer();
+    } else {
+      alert("Please enter a valid question number between 1 and 12.");
+    }
+  }
+
+  function checkAnswer(selectedAnswer) {
+    if (selectedAnswer === currentQuestion.answer) {
+      showFeedback("correct");
+    } else {
+      showFeedback("incorrect");
+    }
+  }
+
+  function showFeedback(type) {
+    const modal = document.getElementById('feedbackModal');
+    const modalContent = document.getElementById('modalContent');
+    const tickCross = document.getElementById('tickCross');
+    const message = document.getElementById('modalMessage');
+    
+    modal.style.display = 'flex';
+    if (type === "correct") {
+      modalContent.classList.add('correct');
+      modalContent.classList.remove('incorrect');
+      tickCross.innerHTML = "✔️";
+      message.innerText = "Correct!";
+    } else {
+      modalContent.classList.add('incorrect');
+      modalContent.classList.remove('correct');
+      tickCross.innerHTML = "❌";
+      message.innerText = "Incorrect! The correct answer is: " + currentQuestion.answer;
+    }
+    setTimeout(() => modal.style.display = 'none', 2000);
+  }
+
+  function revealAnswer() {
+    alert("The answer is: " + currentQuestion.answer);
+  }
+</script>
+
+</body>
+</html>
+
